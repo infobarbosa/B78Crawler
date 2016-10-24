@@ -35,9 +35,9 @@ public class MainTest
      */
     public void testApp()
     {
-        Main m = new Main();
+        Main m = new Main("https://pt.wikipedia.org/wiki/Louis_Armstrong");
         m.craw();
-        
+
         assertTrue( true );
     }
 }

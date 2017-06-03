@@ -9,78 +9,45 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class Main{
 	
-  private static Logger logger = LoggerFactory.getLogger( Main.class );
+	private static Logger logger = LoggerFactory.getLogger( Main.class );
 
-  URL url = null;
-
-  public Main(String url)
-  {
-    try
-    {
-      this.url = new URL( url );
-    }catch(MalformedURLException e)
-    {
-      logger.error( e.getMessage() );
-    }
-  }
-
-  public Main(URL url)
-  {
-    this.url = url;
-  }
-
-  public void setUrl(URL url){
-    this.url = url;
-  }
-
-  public void setUrl(String url){
-    try
-    {
-      this.url = new URL( url );
-    }catch(MalformedURLException e)
-    {
-      logger.error( e.getMessage() );
-    }
-  }
-
+	String url;
+	
+  	public Main(String url){
+	    this.url = url;
+  	}
+	
 	public static void main(String args[]){
-    //TODO
+		Main m = new Main("https://en.wikipedia.org/wiki/Main_Page");
+		
+		m.craw();
 	}
 
-  public void craw(){
-    try
-    {
-      URLConnection urlConnection = url.openConnection();
-      urlConnection.setConnectTimeout(15000);
-      HttpURLConnection connection = null;
-
-      if(urlConnection instanceof HttpURLConnection){
-        connection = (HttpURLConnection) urlConnection;
-      }else{
-        throw new Exception("Please enter an HTTP URL.");
-      }
-
-      BufferedReader in = new BufferedReader(
-        new InputStreamReader( connection.getInputStream() )
-      );
-      String urlString = "";
-      String current;
-      while((current = in.readLine()) != null)
-      {
-          urlString += current;
-      }
-
-      logger.debug( urlString );
-    }catch(IOException e)
-    {
-      logger.error( e.toString() );
-    }catch(Exception e)
-    {
-      logger.error( e.toString() );
-    }
+	public void craw(){
+		try
+		{
+			Document doc = Jsoup.connect( this.url ).get();
+			
+			Element content = doc.getElementById("content");
+			Elements links = content.getElementsByTag("a");
+			for (Element link : links) {
+			  String linkHref = link.attr("href");
+			  String linkText = link.text();
+			  System.out.println( linkHref + " ------> "  + linkText);
+			}
+		}catch(IOException e){
+			logger.error( e.toString() );
+		}catch(Exception e){
+			logger.error( e.toString() );
+			
+		}
 
   }
 }

@@ -1,18 +1,13 @@
 package com.infobarbosa;
 
-import java.net.URL;
-import java.io.BufferedReader;
-import java.net.URLConnection;
-import java.net.HttpURLConnection;
-import java.io.InputStreamReader;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main{
 	

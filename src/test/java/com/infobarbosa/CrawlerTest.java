@@ -1,15 +1,14 @@
 package com.infobarbosa;
 
+import com.infobarbosa.crawler.Crawler;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import com.infobarbosa.Main;
-
 /**
  * Unit test for simple App.
  */
-public class MainTest 
+public class CrawlerTest
     extends TestCase
 {
     /**
@@ -17,7 +16,7 @@ public class MainTest
      *
      * @param testName name of the test case
      */
-    public MainTest( String testName )
+    public CrawlerTest(String testName )
     {
         super( testName );
     }
@@ -27,7 +26,7 @@ public class MainTest
      */
     public static Test suite()
     {
-        return new TestSuite( MainTest.class );
+        return new TestSuite( CrawlerTest.class );
     }
 
     /**
@@ -35,8 +34,8 @@ public class MainTest
      */
     public void testApp()
     {
-        Main m = new Main("https://pt.wikipedia.org/wiki/Louis_Armstrong");
-        m.craw();
+        Crawler m = new Crawler();
+        m.main(new String[]{});
 
         assertTrue( true );
     }

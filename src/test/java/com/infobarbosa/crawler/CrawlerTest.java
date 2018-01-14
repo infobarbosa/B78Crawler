@@ -1,6 +1,5 @@
-package com.infobarbosa;
+package com.infobarbosa.crawler;
 
-import com.infobarbosa.crawler.Crawler;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -35,7 +34,7 @@ public class CrawlerTest
     public void testApp()
     {
         Crawler m = new Crawler();
-        m.main(new String[]{});
+        m.crawl("https://www.americanas.com.br/produto/132429722");
 
         assertTrue( true );
     }

@@ -1,6 +1,9 @@
 package com.infobarbosa.crawler;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,61 +16,110 @@ public class Crawler {
 	
 	private static Logger logger = LoggerFactory.getLogger( Crawler.class );
 
-
 	public static void main(String args[]){
   		String[] urls = {
   				"https://www.americanas.com.br/produto/132429722"
 				,"https://www.americanas.com.br/produto/132127601"
   		};
 
+  		Crawler crawler = new Crawler();
+
 		for(String url: urls)
-			craw(url);
+			crawler.crawl(url);
 	}
 
-	private static void craw(String url){
+	/**
+	 * obtem os dados a partir do URL fornecido
+	 * */
+	public void crawl(String url){
 		try
 		{
 			Document doc = Jsoup.connect( url ).get();
 
-			//printLink(doc);
-			printProduct(doc);
-			printPrice(doc);
-			listLinks(url);
-		}catch(IOException e){
+			WebPage webPage = new WebPage();
+			webPage.setUrl(url);
+			getLinks(doc, webPage);
+			getProduct(doc, webPage);
+
+			System.out.println(webPage);
+		} catch(Exception e){
 			logger.error( e.toString() );
-		}catch(Exception e){
-			logger.error( e.toString() );
-			
 		}
 	}
 
-	private static void printProduct(Document doc){
+	/**
+	 * Obtem a lista de links do documento e adiciona aa lista da web page.
+	 * */
+	private void getLinks(Document doc, WebPage webPage){
+
+		try {
+			URI uri = new URI(doc.baseUri());
+			System.out.println("URI(root): " + uri.getHost());
+
+			ResourceLinks resourceLinks = new ResourceLinks();
+			ArrayList<String> links = resourceLinks.list(doc);
+
+			for(String link: links)
+				webPage.addLink(link);
+
+		}catch(IOException ioe){
+			logger.error("Falha obtendo lista de links. ".concat(ioe.getMessage()));
+		}catch(URISyntaxException se){
+			se.printStackTrace();
+		}
+	}
+
+	/**
+	 * Obtem os dados do produto a partir do documento e atualiza a variavel webPage
+	 * */
+	private void getProduct(Document doc, WebPage webPage){
+
+		Product product = new Product();
+		product.setUrl(doc.location());
+
+		getProductPrice(doc, product);
+		getProductName(doc, product);
+		getProductID(doc, product);
+
+		System.out.println(product);
+		webPage.setProduct(product);
+	}
+
+
+	private void getProductID(Document doc, Product product){
+		Element content = doc.getElementById("content");
+		Elements metas = content.getElementsByTag("meta");
+		for(Element e: metas){
+
+			String key = e.attr("itemProp");
+			if(key.equals("productID")){
+				String value = e.attr("content");
+				product.setId(value);
+			}
+		}
+	}
+
+	/**
+	 * Obtem a descricao/nome do produto
+	 * */
+	private void getProductName(Document doc, Product product){
 		Element content = doc.getElementById("content");
 		Elements elements = content.getElementsByTag("h1");
+		//Elements elements = content.getElementsByAttribute("product-name");
+
 		for (Element e : elements) {
 			String key = e.attr("class");
 			if(key.equals("product-name")){
 				String value = e.text();
-				System.out.println( key + " ------> "  + value);
+				product.setId(value);
 			}
 		}
-
-	}
-	private static void printLink(Document doc){
-		System.out.println("entrou");
-		Element content = doc.getElementById("head");
-		System.out.println(content);
-		Elements links = content.getElementsByTag("link");
-		for (Element link : links) {
-			System.out.println(link);
-			String linkHref = link.attr("href");
-			String linkText = link.text();
-			System.out.println( linkHref + " : "  + linkText);
-		}
-
 	}
 
-	private static void printPrice(Document doc){
+	/**
+	 * obtem o preco de venda do produto a partir do documento
+	 * */
+	private void getProductPrice(Document doc, Product product){
 
 		Element content = doc.getElementById("content");
 		Elements elements = content.getElementsByTag("p");
@@ -75,20 +127,11 @@ public class Crawler {
 			String key = e.attr("class");
 			if(key.equals("sales-price")){
 				String value = e.text();
-				System.out.println( key + " ------> "  + value);
+				product.setPrice(value);
 			}
-			//persistOnKafka(linkHref);
-		}
-
-	}
-
-	private static void listLinks(String url){
-		try{
-			ResourceLinks.list(url);
-		}catch(IOException ioe){
-			ioe.printStackTrace();
 		}
 	}
+
 
 //	private void persistOnKafka(String url){
 //		Properties props = new Properties();

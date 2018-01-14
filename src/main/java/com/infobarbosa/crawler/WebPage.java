@@ -1,13 +1,18 @@
 package com.infobarbosa.crawler;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 public class WebPage {
 
     private String url;
-    private String[] links;
+    private Set<String> links;
     private Product product;
+
+    public WebPage(){
+        url = null;
+        links = new HashSet<String>();
+        product = null;
+    }
 
     public String getUrl() {
         return url;
@@ -17,11 +22,11 @@ public class WebPage {
         this.url = url;
     }
 
-    public String[] getLinks() {
+    public Set<String> getLinks() {
         return links;
     }
 
-    public void setLinks(String[] links) {
+    public void setLinks(Set<String> links) {
         this.links = links;
     }
 
@@ -37,7 +42,7 @@ public class WebPage {
     public String toString() {
         return "WebPage{" +
                 "url='" + url + '\'' +
-                ", links=" + Arrays.toString(links) +
+                ", links=" + Arrays.toString(links.toArray()) +
                 ", product=" + product +
                 '}';
     }
@@ -54,5 +59,9 @@ public class WebPage {
     public int hashCode() {
 
         return Objects.hash(getUrl());
+    }
+
+    public void addLink(String link) {
+        links.add(link);
     }
 }

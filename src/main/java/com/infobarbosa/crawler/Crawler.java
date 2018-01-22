@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import com.infobarbosa.crawler.kafka.Kafka;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,16 +17,33 @@ public class Crawler {
 	
 	private static Logger logger = LoggerFactory.getLogger( Crawler.class );
 
+	Kafka kafka = null;
+
+	/**
+	 * Construtor
+	 * */
+	public Crawler(){
+		kafka = Kafka.getInstance();
+	}
+
+	/**
+	 * main method
+	 * */
 	public static void main(String args[]){
-  		String[] urls = {
-  				"https://www.americanas.com.br/produto/132429722"
-				,"https://www.americanas.com.br/produto/132127601"
-  		};
 
   		Crawler crawler = new Crawler();
+  		crawler.crawl();
+	}
 
-		for(String url: urls)
-			crawler.crawl(url);
+	/**
+	 * crawl sem argumentos (obtem o proximo url de uma fila)
+	 * */
+	public void crawl(){
+		String url = null;
+		while(true) {
+			url = kafka.getNextUrl();
+			crawl(url);
+		}
 	}
 
 	/**
@@ -59,8 +77,10 @@ public class Crawler {
 			ResourceLinks resourceLinks = new ResourceLinks();
 			ArrayList<String> links = resourceLinks.list(doc);
 
-			for(String link: links)
+			for(String link: links) {
 				webPage.addLink(link);
+				kafka.enqueue(link);
+			}
 
 		}catch(IOException ioe){
 			logger.error("Falha obtendo lista de links. ".concat(ioe.getMessage()));
@@ -111,7 +131,7 @@ public class Crawler {
 			String key = e.attr("class");
 			if(key.equals("product-name")){
 				String value = e.text();
-				product.setId(value);
+				product.setDescription(value);
 			}
 		}
 	}
@@ -131,24 +151,4 @@ public class Crawler {
 			}
 		}
 	}
-
-
-//	private void persistOnKafka(String url){
-//		Properties props = new Properties();
-//		 props.put("bootstrap.servers", "172.18.0.21:9092");
-//		 props.put("acks", "all");
-//		 props.put("retries", 0);
-//		 props.put("batch.size", 16384);
-//		 props.put("linger.ms", 1);
-//		 props.put("buffer.memory", 33554432);
-//		 props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-//		 props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-//
-//		 Producer<String, String> producer = new KafkaProducer<>(props);
-//
-//		 producer.send(new ProducerRecord<String, String>("teste2", this.url, url));
-//
-//		 producer.close();
-//
-//	}
 }

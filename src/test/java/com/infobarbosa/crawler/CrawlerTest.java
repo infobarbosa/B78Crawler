@@ -34,7 +34,8 @@ public class CrawlerTest
     public void testApp()
     {
         Crawler m = new Crawler();
-        m.crawl("https://www.americanas.com.br/produto/132429722");
+        //m.crawl("https://www.americanas.com.br/produto/132429722");
+        m.crawl("https://www.americanas.com.br/categoria/tv-e-home-theater");
 
         assertTrue( true );
     }

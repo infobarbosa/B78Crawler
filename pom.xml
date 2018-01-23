@@ -49,6 +49,17 @@
       <version>1.0.0-cp1</version>
     </dependency>
 
+      <dependency>
+          <groupId>com.datastax.cassandra</groupId>
+          <artifactId>cassandra-driver-core</artifactId>
+          <version>3.4.0</version>
+      </dependency>
+
+      <dependency>
+          <groupId>com.datastax.cassandra</groupId>
+          <artifactId>cassandra-driver-mapping</artifactId>
+          <version>3.4.0</version>
+      </dependency>
   </dependencies>
     <build>
         <plugins>

@@ -31,21 +31,21 @@ public class ResourceLinksTest extends TestCase {
     /**
      * Teste da classe principal
      */
-    public void testObtemLinksDeUmDocumento()
-    {
-        String url = "https://www.americanas.com.br/produto/132429722";
-        try {
-            Document doc = Jsoup.connect(url).get();
-            ResourceLinks resourceLinks = new ResourceLinks();
-            ArrayList<String> links = resourceLinks.list(doc);
-
-            if(links.size() > 0){
-                assertTrue(true);
-            }else{
-                fail("nenhum link encontrado.");
-            }
-        }catch(IOException ioe){
-            fail("falhou. ".concat(ioe.getMessage()));
-        }
-    }
+//    public void testObtemLinksDeUmDocumento()
+//    {
+//        String url = "https://www.americanas.com.br/produto/132429722";
+//        try {
+//            Document doc = Jsoup.connect(url).get();
+//            ResourceLinks resourceLinks = new ResourceLinks();
+//            ArrayList<String> links = resourceLinks.list(doc);
+//
+//            if(links.size() > 0){
+//                assertTrue(true);
+//            }else{
+//                fail("nenhum link encontrado.");
+//            }
+//        }catch(IOException ioe){
+//            fail("falhou. ".concat(ioe.getMessage()));
+//        }
+//    }
 }

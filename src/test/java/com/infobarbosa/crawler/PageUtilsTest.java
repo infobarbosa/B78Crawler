@@ -1,48 +1,46 @@
 package com.infobarbosa.crawler;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
-public class PageLinksTest extends TestCase {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public PageLinksTest(String testName )
-    {
-        super( testName );
-    }
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.junit.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+
+public class PageUtilsTest{
+    private static Logger logger = LoggerFactory.getLogger(PageUtilsTest.class);
+
+    private Document doc = null;
+    private PageUtils pageUtils = null;
 
     /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( PageLinksTest.class );
+     * inicializa o teste
+     * */
+    @Before
+    public void init(){
+        logger.info("inicializando o teste");
+        String html = "<html><head><title>First parse</title></head>"
+                + "<body><p>Parsed HTML into a doc.</p>" +
+                "<p><a href=\"http://test.link\">Simple link</a></p>" +
+                "</body></html>";
+        doc = Jsoup.parse(html);
+        logger.debug(doc.toString());
+
+        pageUtils = PageUtils.getInstance();
     }
 
     /**
      * Teste da classe principal
      */
-    public void testObtemLinksDeUmDocumento()
-    {
-//        String url = "https://www.americanas.com.br/produto/132429722";
-//        try {
-//            Document doc = Jsoup.connect(url).get();
-//            PageLinks resourceLinks = new PageLinks();
-//            ArrayList<String> links = resourceLinks.list(doc);
-//
-//            if(links.size() > 0){
-//                assertTrue(true);
-//            }else{
-//                fail("nenhum link encontrado.");
-//            }
-//        }catch(IOException ioe){
-//            fail("falhou. ".concat(ioe.getMessage()));
-//        }
-
-        assertTrue(true);
+    @Test
+    public void testObtemLinksDeUmDocumento(){
+        ArrayList<String> links = pageUtils.list(doc);
+        if(links.size() == 0)
+            fail("nenhum link encontrado");
+        else
+            assertTrue(links.get(0).equals("http://test.link"));
     }
 }

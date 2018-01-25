@@ -3,19 +3,14 @@ package com.infobarbosa.crawler;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
-public class ResourceLinksTest extends TestCase {
+public class PageLinksTest extends TestCase {
     /**
      * Create the test case
      *
      * @param testName name of the test case
      */
-    public ResourceLinksTest(String testName )
+    public PageLinksTest(String testName )
     {
         super( testName );
     }
@@ -25,7 +20,7 @@ public class ResourceLinksTest extends TestCase {
      */
     public static Test suite()
     {
-        return new TestSuite( ResourceLinksTest.class );
+        return new TestSuite( PageLinksTest.class );
     }
 
     /**
@@ -36,7 +31,7 @@ public class ResourceLinksTest extends TestCase {
 //        String url = "https://www.americanas.com.br/produto/132429722";
 //        try {
 //            Document doc = Jsoup.connect(url).get();
-//            ResourceLinks resourceLinks = new ResourceLinks();
+//            PageLinks resourceLinks = new PageLinks();
 //            ArrayList<String> links = resourceLinks.list(doc);
 //
 //            if(links.size() > 0){

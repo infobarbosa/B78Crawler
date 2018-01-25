@@ -1,4 +1,4 @@
-package com.infobarbosa.crawler.kafka;
+package com.infobarbosa.crawler;
 
 
 import org.apache.kafka.clients.consumer.*;

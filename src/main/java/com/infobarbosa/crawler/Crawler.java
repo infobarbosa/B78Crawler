@@ -1,11 +1,9 @@
 package com.infobarbosa.crawler;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-import com.infobarbosa.crawler.kafka.Kafka;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,29 +15,31 @@ public class Crawler {
 	
 	private static Logger logger = LoggerFactory.getLogger( Crawler.class );
 
-	Kafka kafka = null;
+	private static Crawler crawler = null;
+	private static CrawlerBrokerKafka kafka = null;
 
 	/**
 	 * Construtor
 	 * */
-	public Crawler(){
-		kafka = Kafka.getInstance();
+	private Crawler(){
+		kafka = CrawlerBrokerKafka.getInstance();
 	}
 
 	/**
-	 * main method
+	 * Implement the singleton pattern
 	 * */
-	public static void main(String args[]){
+	public static Crawler getInstance(){
+		if(crawler == null)
+			crawler = new Crawler();
 
-  		Crawler crawler = new Crawler();
-  		crawler.crawl();
+		return crawler;
 	}
 
 	/**
 	 * crawl sem argumentos (obtem o proximo url de uma fila)
 	 * */
 	public void crawl(){
-		String url = null;
+		String url;
 		while(true) {
 			url = kafka.getNextUrl();
 			crawl(url);
@@ -54,12 +54,12 @@ public class Crawler {
 		{
 			Document doc = Jsoup.connect( url ).get();
 
-			WebPage webPage = new WebPage();
-			webPage.setUrl(url);
-			getLinks(doc, webPage);
-			getProduct(doc, webPage);
+			Page page = new Page();
+			page.setUrl(url);
+			getLinks(doc, page);
+			getProduct(doc, page);
 
-			System.out.println(webPage);
+			System.out.println(page);
 		} catch(Exception e){
 			logger.error( e.toString() );
 		}
@@ -68,31 +68,29 @@ public class Crawler {
 	/**
 	 * Obtem a lista de links do documento e adiciona aa lista da web page.
 	 * */
-	private void getLinks(Document doc, WebPage webPage){
+	private void getLinks(Document doc, Page page){
 
 		try {
 			URI uri = new URI(doc.baseUri());
 			System.out.println("URI(root): " + uri.getHost());
 
-			ResourceLinks resourceLinks = new ResourceLinks();
-			ArrayList<String> links = resourceLinks.list(doc);
+			PageUtils pageUtils = PageUtils.getInstance();
+			ArrayList<String> links = pageUtils.list(doc);
 
 			for(String link: links) {
-				webPage.addLink(link);
+				page.addLink(link);
 				kafka.enqueue(link);
 			}
 
-		}catch(IOException ioe){
-			logger.error("Falha obtendo lista de links. ".concat(ioe.getMessage()));
 		}catch(URISyntaxException se){
 			se.printStackTrace();
 		}
 	}
 
 	/**
-	 * Obtem os dados do produto a partir do documento e atualiza a variavel webPage
+	 * Obtem os dados do produto a partir do documento e atualiza a variavel page
 	 * */
-	private void getProduct(Document doc, WebPage webPage){
+	private void getProduct(Document doc, Page page){
 
 		Product product = new Product();
 		product.setUrl(doc.location());
@@ -102,7 +100,7 @@ public class Crawler {
 		getProductID(doc, product);
 
 		System.out.println(product);
-		webPage.setProduct(product);
+		page.setProduct(product);
 	}
 
 
@@ -150,5 +148,14 @@ public class Crawler {
 				product.setPrice(value);
 			}
 		}
+	}
+
+	/**
+	 * the main method
+	 * */
+	public static void main(String args[]){
+
+		Crawler crawler = new Crawler();
+		crawler.crawl();
 	}
 }

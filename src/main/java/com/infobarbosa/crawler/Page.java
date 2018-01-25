@@ -2,13 +2,13 @@ package com.infobarbosa.crawler;
 
 import java.util.*;
 
-public class WebPage {
+public class Page {
 
     private String url;
     private Set<String> links;
     private Product product;
 
-    public WebPage(){
+    public Page(){
         url = null;
         links = new HashSet<String>();
         product = null;
@@ -40,7 +40,7 @@ public class WebPage {
 
     @Override
     public String toString() {
-        return "WebPage{" +
+        return "Page{" +
                 "url='" + url + '\'' +
                 ", links=" + Arrays.toString(links.toArray()) +
                 ", product=" + product +
@@ -51,8 +51,8 @@ public class WebPage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        WebPage webPage = (WebPage) o;
-        return Objects.equals(getUrl(), webPage.getUrl());
+        Page page = (Page) o;
+        return Objects.equals(getUrl(), page.getUrl());
     }
 
     @Override

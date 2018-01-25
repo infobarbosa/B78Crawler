@@ -1,42 +1,47 @@
 package com.infobarbosa.crawler;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.*;
 
 /**
  * Unit test for simple App.
  */
-public class CrawlerTest
-    extends TestCase
-{
+public class CrawlerTest{
+    private static Logger logger = LoggerFactory.getLogger(CrawlerTest.class);
+
+    private Crawler crawler = null;
+
     /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public CrawlerTest(String testName )
-    {
-        super( testName );
+     * inicializa a classe de teste
+     * */
+    @Before
+    public void init(){
+        crawler = Crawler.getInstance();
     }
 
     /**
-     * @return the suite of tests being tested
+     * Teste o crawling de uma pagina de e-commerce que possui dados de produto
      */
-    public static Test suite()
-    {
-        return new TestSuite( CrawlerTest.class );
-    }
-
-    /**
-     * Teste da classe principal
-     */
-    public void testApp()
-    {
-        Crawler m = new Crawler();
-        //m.crawl("https://www.americanas.com.br/produto/132429722");
-        m.crawl("https://www.americanas.com.br/categoria/tv-e-home-theater");
+    @Test
+    public void testCrawlingUsandoPaginaComProduto() {
+        logger.debug("pagina com produto");
+        crawler.crawl("https://www.americanas.com.br/produto/132429722");
 
         assertTrue( true );
     }
+
+    /**
+     * Teste o crawling de uma pagina de e-commerce que nao possui dados de produto
+     */
+    @Test
+    public void testCrawlingUsandoPaginaSemProduto() {
+        logger.debug("pagina sem produto");
+        crawler.crawl("https://www.americanas.com.br/categoria/tv-e-home-theater");
+
+        assertTrue( true );
+    }
+
 }

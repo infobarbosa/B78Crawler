@@ -14,17 +14,17 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Properties;
 
-public class Kafka {
-    private static Logger logger = LoggerFactory.getLogger( Kafka.class );
+public class PageBrokerKafka implements PageBroker {
+    private static Logger logger = LoggerFactory.getLogger( PageBrokerKafka.class );
 
-    private static Kafka kafka = null;
+    private static PageBrokerKafka kafka = null;
     private static Producer<String, String> producer = null;
     private static Consumer<String, String> consumer = null;
 
     /**
      * Construtor
      * */
-    private Kafka(){
+    private PageBrokerKafka(){
         initProducer();
         initConsumer();
     }
@@ -32,10 +32,9 @@ public class Kafka {
     /**
      * getInstance retorna um singleton
      * */
-    public static Kafka getInstance(){
-        if(kafka == null){
-            kafka = new Kafka();
-        }
+    public static PageBrokerKafka getInstance(){
+        if(kafka == null)
+            kafka = new PageBrokerKafka();
 
         return kafka;
     }
@@ -82,17 +81,19 @@ public class Kafka {
     }
 
     /**
-     * enqueue method
+     * put a page url into the queue
     */
-    public void enqueue(String url){
+    @Override
+    public void enqueuePageUrl(String url){
         producer.send(new ProducerRecord<>("webpages", url, url));
         logger.info("URL enfileirada: " + url);
     }
 
     /**
-     * getNextUrl obtem o proximo url da fila
+     *  get the next page url from the queue
      * */
-    public String getNextUrl() {
+    @Override
+    public String dequeueNextPageUrl() {
         String url = null;
         ConsumerRecords<String, String> records = consumer.poll(1);
         for (ConsumerRecord<String, String> record : records) {

@@ -14,16 +14,9 @@ import org.slf4j.LoggerFactory;
 public class Crawler {
 	
 	private static Logger logger = LoggerFactory.getLogger( Crawler.class );
-
 	private static Crawler crawler = null;
-	private static CrawlerBrokerKafka kafka = null;
+	private static PageRepository pageRepo = PageRepositoryCassandra.getInstance();
 
-	/**
-	 * Construtor
-	 * */
-	private Crawler(){
-		kafka = CrawlerBrokerKafka.getInstance();
-	}
 
 	/**
 	 * Implement the singleton pattern
@@ -38,13 +31,13 @@ public class Crawler {
 	/**
 	 * crawl sem argumentos (obtem o proximo url de uma fila)
 	 * */
-	public void crawl(){
-		String url;
-		while(true) {
-			url = kafka.getNextUrl();
-			crawl(url);
-		}
-	}
+//	public void crawl(){
+//		String url;
+//		while(true) {
+//			url = kafka.dequeueNextPageUrl();
+//			crawl(url);
+//		}
+//	}
 
 	/**
 	 * obtem os dados a partir do URL fornecido
@@ -57,7 +50,10 @@ public class Crawler {
 			Page page = new Page();
 			page.setUrl(url);
 			getLinks(doc, page);
+			logger.info("links obtidos");
 			getProduct(doc, page);
+			logger.debug("informacoes de produto obtidas");
+			pageRepo.addPageUrl(url);
 
 			System.out.println(page);
 		} catch(Exception e){
@@ -68,44 +64,59 @@ public class Crawler {
 	/**
 	 * Obtem a lista de links do documento e adiciona aa lista da web page.
 	 * */
-	private void getLinks(Document doc, Page page){
+	public void getLinks(Document doc, Page page){
 
+		logger.debug("obtendo links.");
 		try {
 			URI uri = new URI(doc.baseUri());
-			System.out.println("URI(root): " + uri.getHost());
+			logger.info("URI(root): " + uri.getHost());
 
 			PageUtils pageUtils = PageUtils.getInstance();
 			ArrayList<String> links = pageUtils.list(doc);
 
 			for(String link: links) {
 				page.addLink(link);
-				kafka.enqueue(link);
 			}
 
 		}catch(URISyntaxException se){
-			se.printStackTrace();
+			logger.error("Erro!", se);
 		}
 	}
 
 	/**
 	 * Obtem os dados do produto a partir do documento e atualiza a variavel page
 	 * */
-	private void getProduct(Document doc, Page page){
+	public void getProduct(Document doc, Page page){
+		logger.debug("obtendo dados do produto");
 
-		Product product = new Product();
-		product.setUrl(doc.location());
+		Element content = null;
+		try{
 
-		getProductPrice(doc, product);
-		getProductName(doc, product);
-		getProductID(doc, product);
+			content = doc.getElementById("content");
+			if(content == null)
+				throw new Exception("esta pagina nao possui elemento content");
 
-		System.out.println(product);
-		page.setProduct(product);
+			Product product = new Product();
+			product.setUrl(doc.location());
+
+			getProductPrice(content, product);
+			getProductName(content, product);
+			getProductID(content, product);
+
+			logger.debug(product.toString());
+			page.setProduct(product);
+		}catch(Exception e){
+			logger.error("obtendo dados do produto. ", e);
+		}
 	}
 
 
-	private void getProductID(Document doc, Product product){
-		Element content = doc.getElementById("content");
+	/**
+	 * Obtem o id do produto
+	 * */
+	private void getProductID(Element content, Product product){
+		logger.debug("obtento id do produto");
+
 		Elements metas = content.getElementsByTag("meta");
 		for(Element e: metas){
 
@@ -120,42 +131,65 @@ public class Crawler {
 	/**
 	 * Obtem a descricao/nome do produto
 	 * */
-	private void getProductName(Document doc, Product product){
-		Element content = doc.getElementById("content");
-		Elements elements = content.getElementsByTag("h1");
-		//Elements elements = content.getElementsByAttribute("product-name");
+	private void getProductName(Element content, Product product){
+		logger.debug("obtendo nome do produto");
 
-		for (Element e : elements) {
-			String key = e.attr("class");
-			if(key.equals("product-name")){
-				String value = e.text();
-				product.setDescription(value);
+		try{
+
+			Elements elements = content.getElementsByTag("h1");
+
+			if(elements == null)
+				throw new Exception("variaval element nao contem nos filhos.");
+
+			for (Element e : elements) {
+				String key = e.attr("class");
+				if(key.equals("product-name")){
+					String value = e.text();
+					product.setDescription(value);
+				}
 			}
+		}catch(Exception e){
+			logger.error("Obtendo nome. ", e);
 		}
 	}
 
 	/**
 	 * obtem o preco de venda do produto a partir do documento
 	 * */
-	private void getProductPrice(Document doc, Product product){
+	private void getProductPrice(Element content, Product product){
+		logger.debug("obtendo preco do produto. " + product);
 
-		Element content = doc.getElementById("content");
-		Elements elements = content.getElementsByTag("p");
-		for (Element e : elements) {
-			String key = e.attr("class");
-			if(key.equals("sales-price")){
-				String value = e.text();
-				product.setPrice(value);
+		try {
+
+			Elements elements = content.getElementsByTag("p");
+
+			if(elements == null)
+				throw new Exception("variaval element nao contem nos filhos.");
+
+			for (Element e : elements) {
+				String key = e.attr("class");
+				if (key.equals("sales-price")) {
+					String value = e.text();
+					product.setPrice(value);
+				}
 			}
+		}catch(Exception e){
+			logger.error("Obtendo preco. ", e);
 		}
+
+		logger.debug("preco obtido");
 	}
 
 	/**
 	 * the main method
 	 * */
 	public static void main(String args[]){
+		if(args.length == 0)
+			throw new RuntimeException("Obrigatorio informar uma url");
+
+		String url = args[0];
 
 		Crawler crawler = new Crawler();
-		crawler.crawl();
+		crawler.crawl(url);
 	}
 }

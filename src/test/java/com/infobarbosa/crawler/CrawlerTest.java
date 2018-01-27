@@ -58,4 +58,12 @@ public class CrawlerTest{
         assertTrue( true );
     }
 
+    @Test
+    public void testCrawlingAImageUrl(){
+        logger.debug("crawling de url que liga a uma imagem");
+        crawler.crawl("https://images-americanas.b2w.io/produtos/01/00/item/132429/7/132429722_4SZ.jpg");
+
+        assertTrue(true);
+    }
+
 }

@@ -17,6 +17,7 @@ public class PageRepositoryCassandra implements PageRepository {
 
     /**
      * constructor
+     * TODO externalizar a configuracao de endpoints
      * */
     public PageRepositoryCassandra(){
         Cluster cluster = Cluster.builder()
@@ -30,11 +31,13 @@ public class PageRepositoryCassandra implements PageRepository {
      * Add a page to a repository
      * */
     @Override
-    public void addPageUrl(String pageUrl){
-        logger.debug("inserindo url: " + pageUrl);
+    public void addPage(Page page){
+        logger.debug("inserindo url: " + page.getUrl());
         PreparedStatement prepared = session.prepare(
-                "insert into crawler.pages (url) values (?)");
+                "insert into crawler.pages (parent_page, child_page) values (?, ?)");
 
-        session.execute(prepared.bind(pageUrl));
+        page.getLinks().forEach((url)->{
+            session.execute( prepared.bind(page.getUrl(), url) );
+        });
     }
 }

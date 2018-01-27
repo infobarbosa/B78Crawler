@@ -6,12 +6,10 @@ public class Page {
 
     private String url;
     private Set<String> links;
-    private Product product;
 
     public Page(){
         url = null;
         links = new HashSet<String>();
-        product = null;
     }
 
     public String getUrl() {
@@ -30,20 +28,11 @@ public class Page {
         this.links = links;
     }
 
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
     @Override
     public String toString() {
         return "Page{" +
                 "url='" + url + '\'' +
                 ", links=" + Arrays.toString(links.toArray()) +
-                ", product=" + product +
                 '}';
     }
 

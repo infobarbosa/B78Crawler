@@ -14,17 +14,17 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Properties;
 
-public class PageBrokerKafka implements PageBroker {
-    private static Logger logger = LoggerFactory.getLogger( PageBrokerKafka.class );
+public class PageMessageBusKafka implements PageMessageBus {
+    private static Logger logger = LoggerFactory.getLogger( PageMessageBusKafka.class );
 
-    private static PageBrokerKafka kafka = null;
+    private static PageMessageBusKafka kafka = null;
     private static Producer<String, String> producer = null;
     private static Consumer<String, String> consumer = null;
 
     /**
      * Construtor
      * */
-    private PageBrokerKafka(){
+    private PageMessageBusKafka(){
         initProducer();
         initConsumer();
     }
@@ -32,9 +32,9 @@ public class PageBrokerKafka implements PageBroker {
     /**
      * getInstance retorna um singleton
      * */
-    public static PageBrokerKafka getInstance(){
+    public static PageMessageBusKafka getInstance(){
         if(kafka == null)
-            kafka = new PageBrokerKafka();
+            kafka = new PageMessageBusKafka();
 
         return kafka;
     }

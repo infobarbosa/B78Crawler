@@ -5,6 +5,6 @@ public interface PageRepository {
     /**
      * Add a page to a repository
      * */
-    public void addPageUrl(String pageUrl);
+    public void addPage(Page page);
 
 }

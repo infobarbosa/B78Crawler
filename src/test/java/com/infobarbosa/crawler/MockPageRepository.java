@@ -7,7 +7,7 @@ public class MockPageRepository implements PageRepository {
     private static Logger logger = LoggerFactory.getLogger(MockPageRepository.class);
 
     @Override
-    public void addPageUrl(String pageUrl) {
+    public void addPage(Page page) {
         logger.debug("mock class was called");
     }
 }

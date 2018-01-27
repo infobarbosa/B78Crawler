@@ -1,6 +1,6 @@
 package com.infobarbosa.crawler;
 
-public interface PageBroker {
+public interface PageMessageBus {
 
     /**
      * enqueue a page url

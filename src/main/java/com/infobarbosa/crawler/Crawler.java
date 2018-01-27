@@ -40,11 +40,9 @@ public class Crawler{
 			page.setUrl(url);
 			getLinks(doc, page);
 			logger.info("links obtidos");
-			getProduct(doc, page);
-			logger.debug("informacoes de produto obtidas");
-			pageRepo.addPageUrl(url);
+			pageRepo.addPage(page);
 
-			System.out.println(page);
+			logger.debug(page.toString());
 		} catch(Exception e){
 			logger.error( e.toString() );
 		}
@@ -70,103 +68,6 @@ public class Crawler{
 		}catch(URISyntaxException se){
 			logger.error("Erro!", se);
 		}
-	}
-
-	/**
-	 * Obtem os dados do produto a partir do documento e atualiza a variavel page
-	 * */
-	public void getProduct(Document doc, Page page){
-		logger.debug("obtendo dados do produto");
-
-		Element content;
-		try{
-
-			content = doc.getElementById("content");
-			if(content == null)
-				throw new Exception("esta pagina nao possui elemento content");
-
-			Product product = new Product();
-			product.setUrl(doc.location());
-
-			getProductPrice(content, product);
-			getProductName(content, product);
-			getProductID(content, product);
-
-			logger.debug(product.toString());
-			page.setProduct(product);
-		}catch(Exception e){
-			logger.error("obtendo dados do produto. ", e);
-		}
-	}
-
-
-	/**
-	 * Obtem o id do produto
-	 * */
-	private void getProductID(Element content, Product product){
-		logger.debug("obtento id do produto");
-
-		Elements metas = content.getElementsByTag("meta");
-		for(Element e: metas){
-
-			String key = e.attr("itemProp");
-			if(key.equals("productID")){
-				String value = e.attr("content");
-				product.setId(value);
-			}
-		}
-	}
-
-	/**
-	 * Obtem a descricao/nome do produto
-	 * */
-	private void getProductName(Element content, Product product){
-		logger.debug("obtendo nome do produto");
-
-		try{
-
-			Elements elements = content.getElementsByTag("h1");
-
-			if(elements == null)
-				throw new Exception("variaval element nao contem nos filhos.");
-
-			for (Element e : elements) {
-				String key = e.attr("class");
-				if(key.equals("product-name")){
-					String value = e.text();
-					product.setDescription(value);
-				}
-			}
-		}catch(Exception e){
-			logger.error("Obtendo nome. ", e);
-		}
-	}
-
-	/**
-	 * obtem o preco de venda do produto a partir do documento
-	 * */
-	private void getProductPrice(Element content, Product product){
-		logger.debug("obtendo preco do produto. " + product);
-
-		try {
-
-			Elements elements = content.getElementsByTag("p");
-
-			if(elements == null)
-				throw new Exception("variaval element nao contem nos filhos.");
-
-			for (Element e : elements) {
-				String key = e.attr("class");
-				if (key.equals("sales-price")) {
-					String value = e.text();
-					product.setPrice(value);
-				}
-			}
-		}catch(Exception e){
-			logger.error("Obtendo preco. ", e);
-		}
-
-		logger.debug("preco obtido");
 	}
 
 	/**

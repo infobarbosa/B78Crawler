@@ -4,6 +4,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,33 +13,20 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Crawler {
+import javax.inject.Inject;
+
+
+public class Crawler{
 	
 	private static Logger logger = LoggerFactory.getLogger( Crawler.class );
 	private static Crawler crawler = null;
-	private static PageRepository pageRepo = PageRepositoryCassandra.getInstance();
 
+	private PageRepository pageRepo;
 
-	/**
-	 * Implement the singleton pattern
-	 * */
-	public static Crawler getInstance(){
-		if(crawler == null)
-			crawler = new Crawler();
-
-		return crawler;
+	@Inject
+	public Crawler(PageRepository pageRepo){
+		this.pageRepo = pageRepo;
 	}
-
-	/**
-	 * crawl sem argumentos (obtem o proximo url de uma fila)
-	 * */
-//	public void crawl(){
-//		String url;
-//		while(true) {
-//			url = kafka.dequeueNextPageUrl();
-//			crawl(url);
-//		}
-//	}
 
 	/**
 	 * obtem os dados a partir do URL fornecido
@@ -89,7 +78,7 @@ public class Crawler {
 	public void getProduct(Document doc, Page page){
 		logger.debug("obtendo dados do produto");
 
-		Element content = null;
+		Element content;
 		try{
 
 			content = doc.getElementById("content");
@@ -189,7 +178,10 @@ public class Crawler {
 
 		String url = args[0];
 
-		Crawler crawler = new Crawler();
+		Injector injector = Guice.createInjector(new CrawlerInjector());
+
+		Crawler crawler = injector.getInstance(Crawler.class);
+
 		crawler.crawl(url);
 	}
 }

@@ -33,6 +33,15 @@ public class PageRepositoryCassandra implements PageRepository {
     @Override
     public void addPage(Page page){
         logger.debug("inserindo url: " + page.getUrl());
+
+        //insert CRAWLER.PAGE_DETAIL
+        PreparedStatement pDetail = session.prepare(
+                "insert into crawler.page_detail (page, detail) values (?, ?)");
+
+        session.execute( pDetail.bind(page.getUrl(), page.getPageDetail()) );
+
+
+        //insert CRAWLER.PAGES
         PreparedStatement prepared = session.prepare(
                 "insert into crawler.pages (parent_page, child_page) values (?, ?)");
 

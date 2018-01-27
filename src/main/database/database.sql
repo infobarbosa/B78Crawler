@@ -5,6 +5,11 @@ CREATE KEYSPACE crawler
 CREATE TABLE crawler.pages (
     parent_page text,
     child_page text,
-    PRIMARY KEY (parent_page, child_page)
+    PRIMARY KEY ((parent_page), child_page)
 );
 
+CREATE TABLE crawler.page_detail (
+    page text,
+    document text,
+    PRIMARY KEY ((page))
+);

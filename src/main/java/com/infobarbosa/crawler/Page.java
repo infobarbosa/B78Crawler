@@ -6,6 +6,7 @@ public class Page {
 
     private String url;
     private Set<String> links;
+    private String pageDetail;
 
     public Page(){
         url = null;
@@ -28,11 +29,16 @@ public class Page {
         this.links = links;
     }
 
+    public String getPageDetail(){ return this.pageDetail; }
+
+    public void setPageDetail(String pageDetail){ this.pageDetail = pageDetail; }
+
     @Override
     public String toString() {
         return "Page{" +
                 "url='" + url + '\'' +
                 ", links=" + Arrays.toString(links.toArray()) +
+                ", pageDetail=" + pageDetail +
                 '}';
     }
 

@@ -81,6 +81,7 @@ public class PageRepositoryCassandra implements PageRepository {
         logger.debug("destroy was called");
         
         try{
+            session.getCluster().close();
             session.close();
         }catch(Exception e){
             logger.error("problemas liberando session.", e);

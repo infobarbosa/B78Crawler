@@ -10,4 +10,12 @@ public class MockPageRepository implements PageRepository {
     public void addPage(Page page) {
         logger.debug("mock class was called");
     }
+
+    @Override
+    public boolean checkThePageWasCrawledAlready(String url) {
+        return false;
+    }
+
+    @Override
+    public void destroy(){ logger.debug("destroy was called"); }
 }

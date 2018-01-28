@@ -10,6 +10,6 @@ CREATE TABLE crawler.pages (
 
 CREATE TABLE crawler.page_detail (
     page text,
-    document text,
+    page_detail text,
     PRIMARY KEY ((page))
 );

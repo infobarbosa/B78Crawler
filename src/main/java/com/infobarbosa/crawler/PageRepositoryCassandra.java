@@ -1,12 +1,9 @@
 package com.infobarbosa.crawler;
 
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.Session;
+import com.datastax.driver.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.inject.Singleton;
 
 @Singleton
@@ -21,7 +18,7 @@ public class PageRepositoryCassandra implements PageRepository {
      * */
     public PageRepositoryCassandra(){
         Cluster cluster = Cluster.builder()
-                .addContactPoint("172.17.0.2")
+                .addContactPoint("localhost")
                 .build();
         session = cluster.connect();
         logger.info("sessao cassandra inicializada");
@@ -36,7 +33,7 @@ public class PageRepositoryCassandra implements PageRepository {
 
         //insert CRAWLER.PAGE_DETAIL
         PreparedStatement pDetail = session.prepare(
-                "insert into crawler.page_detail (page, detail) values (?, ?)");
+                "insert into crawler.page_detail (page, page_detail) values (?, ?)");
 
         session.execute( pDetail.bind(page.getUrl(), page.getPageDetail()) );
 
@@ -48,5 +45,47 @@ public class PageRepositoryCassandra implements PageRepository {
         page.getLinks().forEach((url)->{
             session.execute( prepared.bind(page.getUrl(), url) );
         });
+
+        logger.debug("pagina inserida");
+    }
+
+    /**
+     * check the page was already crawled
+     * */
+    @Override
+    public boolean checkThePageWasCrawledAlready(String url){
+
+        PreparedStatement prepared = session.prepare(
+                "select count(1) as qtt from crawler.page_detail where page = ?");
+
+        ResultSet r1 = session.execute(prepared.bind(url));
+
+        Row row = r1.one();
+
+        long result = row.getLong("qtt");
+
+        logger.debug("checkThePageWasCrawledAlready - result: " + result);
+
+        if( result  > 0 ) {
+            logger.info("URL ja foi visitada");
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * destroy method
+     * */
+    public void destroy(){
+        logger.debug("destroy was called");
+        
+        try{
+            session.close();
+        }catch(Exception e){
+            logger.error("problemas liberando session.", e);
+        }finally{
+            session = null;
+        }
     }
 }

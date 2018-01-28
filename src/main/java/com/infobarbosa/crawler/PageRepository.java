@@ -7,4 +7,13 @@ public interface PageRepository {
      * */
     public void addPage(Page page);
 
+    /**
+     * check if the page was already crawled
+     * */
+    boolean checkThePageWasCrawledAlready(String url);
+
+    /**
+     * destroy method
+     * */
+    public void destroy();
 }

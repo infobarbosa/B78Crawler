@@ -8,8 +8,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +17,6 @@ import javax.inject.Inject;
 public class Crawler{
 	
 	private static Logger logger = LoggerFactory.getLogger( Crawler.class );
-	private static Crawler crawler = null;
 
 	private PageRepository pageRepo;
 
@@ -34,24 +31,31 @@ public class Crawler{
 	public void crawl(String url){
 		try
 		{
-			Document doc = Jsoup.connect( url ).get();
+			if( !pageRepo.checkThePageWasCrawledAlready(url) ) {
+				Document doc = Jsoup.connect(url).get();
 
-			Page page = new Page();
-			page.setUrl(url);
-			getLinks(doc, page);
-			logger.info("links obtidos");
-			pageRepo.addPage(page);
+				Page page = new Page();
+				page.setUrl(url);
+				getLinks(doc, page);
+				logger.info("links obtidos");
+				pageRepo.addPage(page);
 
-			logger.debug(page.toString());
+				logger.debug(page.toString());
+			}else{
+				logger.info("Crawled URL. " + url);
+			}
+
 		} catch(Exception e){
 			logger.error( e.toString() );
+		} finally{
+			pageRepo.destroy();
 		}
 	}
 
 	/**
 	 * Obtem a lista de links do documento e adiciona aa lista da web page.
 	 * */
-	public void getLinks(Document doc, Page page){
+	private void getLinks(Document doc, Page page){
 
 		logger.debug("obtendo links.");
 		try {
@@ -84,5 +88,6 @@ public class Crawler{
 		Crawler crawler = injector.getInstance(Crawler.class);
 
 		crawler.crawl(url);
+		logger.info("finalizando...");
 	}
 }

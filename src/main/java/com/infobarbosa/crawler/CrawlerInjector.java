@@ -8,6 +8,7 @@ public class CrawlerInjector extends AbstractModule {
     protected void configure() {
 
         bind(PageRepository.class).to(PageRepositoryCassandra.class);
+        bind(PageMessageBus.class).to(PageMessageBusKafka.class);
     }
 
 }

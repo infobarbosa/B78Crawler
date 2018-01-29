@@ -17,12 +17,26 @@ import javax.inject.Inject;
 public class Crawler{
 	
 	private static Logger logger = LoggerFactory.getLogger( Crawler.class );
-
-	private PageRepository pageRepo;
+	private final PageMessageBus messageBus;
+	private final PageRepository repository;
 
 	@Inject
-	public Crawler(PageRepository pageRepo){
-		this.pageRepo = pageRepo;
+	public Crawler(PageRepository repository, PageMessageBus messageBus){
+
+		this.repository = repository;
+		this.messageBus = messageBus;
+	}
+
+	/**
+	 * crawling com urls obtidos a partir de um servico
+	 * */
+	public void crawl(){
+		String url;
+
+		while(true){
+			url = messageBus.dequeueNextPageUrl();
+			crawl(url);
+		}
 	}
 
 	/**
@@ -31,14 +45,15 @@ public class Crawler{
 	public void crawl(String url){
 		try
 		{
-			if( !pageRepo.checkThePageWasCrawledAlready(url) ) {
+			if( !repository.checkThePageWasCrawledAlready(url) ) {
+				logger.debug("crawling " + url);
 				Document doc = Jsoup.connect(url).get();
 
 				Page page = new Page();
 				page.setUrl(url);
 				getLinks(doc, page);
 				logger.info("links obtidos");
-				pageRepo.addPage(page);
+				repository.addPage(page);
 
 				logger.debug(page.toString());
 			}else{
@@ -47,8 +62,6 @@ public class Crawler{
 
 		} catch(Exception e){
 			logger.error( e.toString() );
-		} finally{
-			pageRepo.destroy();
 		}
 	}
 
@@ -65,9 +78,10 @@ public class Crawler{
 			PageUtils pageUtils = PageUtils.getInstance();
 			ArrayList<String> links = pageUtils.list(doc);
 
-			for(String link: links) {
+			links.forEach((link) -> {
 				page.addLink(link);
-			}
+				messageBus.enqueuePageUrl(link);
+			});
 
 		}catch(URISyntaxException se){
 			logger.error("Erro!", se);
@@ -75,19 +89,37 @@ public class Crawler{
 	}
 
 	/**
+	 * libera os recursos alocados
+	 * */
+	public void destroy(){
+		repository.destroy();
+		messageBus.destroy();
+	}
+
+	/**
 	 * the main method
 	 * */
-	public static void main(String args[]){
-		if(args.length == 0)
-			throw new RuntimeException("Obrigatorio informar uma url");
-
-		String url = args[0];
-
+	public static void main(String args[]) {
 		Injector injector = Guice.createInjector(new CrawlerInjector());
 
 		Crawler crawler = injector.getInstance(Crawler.class);
 
-		crawler.crawl(url);
-		logger.info("finalizando...");
+		try {
+
+			String url = null;
+
+			if(args.length == 1)
+				url = args[0];
+
+			if (url == null || url.trim().equals(""))
+				crawler.crawl();
+			else
+				crawler.crawl(url);
+
+			logger.info("finalizando...");
+
+		}finally {
+			crawler.destroy();
+		}
 	}
 }

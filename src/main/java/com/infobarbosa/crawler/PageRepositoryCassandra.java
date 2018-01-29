@@ -11,6 +11,7 @@ public class PageRepositoryCassandra implements PageRepository {
 
     private static Logger logger = LoggerFactory.getLogger(PageRepositoryCassandra.class);
     private static Session session = null;
+    PreparedStatement preparedCheck = null;
 
     /**
      * constructor
@@ -22,6 +23,10 @@ public class PageRepositoryCassandra implements PageRepository {
                 .build();
         session = cluster.connect();
         logger.info("sessao cassandra inicializada");
+
+        preparedCheck = session.prepare(
+                "select count(1) as qtt from crawler.page_detail where page = ?");
+
     }
 
     /**
@@ -55,10 +60,8 @@ public class PageRepositoryCassandra implements PageRepository {
     @Override
     public boolean checkThePageWasCrawledAlready(String url){
 
-        PreparedStatement prepared = session.prepare(
-                "select count(1) as qtt from crawler.page_detail where page = ?");
-
-        ResultSet r1 = session.execute(prepared.bind(url));
+        logger.debug("check if url war crawled alread: " + url);
+        ResultSet r1 = session.execute(preparedCheck.bind(url));
 
         Row row = r1.one();
 

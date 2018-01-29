@@ -29,6 +29,7 @@ public class CrawlerTest{
                     @Override
                     protected void configure() {
                         bind(PageRepository.class).to(MockPageRepository.class);
+                        bind(PageMessageBus.class).to(MockPageMessageBus.class);
                     }
                 }
         );

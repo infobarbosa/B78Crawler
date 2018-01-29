@@ -11,4 +11,9 @@ public interface PageMessageBus {
      * dequeue the next page url
      * */
     public String dequeueNextPageUrl();
+
+    /**
+     * libera os recursos utilizados
+     * */
+    public void destroy();
 }

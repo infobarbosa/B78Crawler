@@ -3,6 +3,7 @@ package com.infobarbosa.crawler;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -31,12 +32,24 @@ public class Crawler{
 	 * crawling com urls obtidos a partir de um servico
 	 * */
 	public void crawl(){
-		String url;
 
-		while(true){
-			url = messageBus.dequeueNextPageUrl();
-			crawl(url);
-		}
+	    while(true) {
+            List<String> urlList = messageBus.dequeueNextPageUrl();
+
+            for (String url : urlList) {
+                logger.debug("after dequeue: " + url);
+                if (url != null) {
+                    crawl(url);
+                }
+            }
+
+            //TODO retirar o trecho abaixo do codigo final
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 	}
 
 	/**

@@ -3,6 +3,8 @@ package com.infobarbosa.crawler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class MockPageMessageBus implements PageMessageBus {
     private static final Logger logger = LoggerFactory.getLogger(MockPageMessageBus.class);
 
@@ -12,7 +14,7 @@ public class MockPageMessageBus implements PageMessageBus {
     }
 
     @Override
-    public String dequeueNextPageUrl() {
+    public List<String> dequeueNextPageUrl() {
         logger.debug("dequeueNextPageUrl was called");
         return null;
     }

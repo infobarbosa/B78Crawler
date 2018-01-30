@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 @Singleton
@@ -86,15 +88,17 @@ public class PageMessageBusKafka implements PageMessageBus {
      *  get the next page url from the queue
      * */
     @Override
-    public String dequeueNextPageUrl() {
+    public List<String> dequeueNextPageUrl() {
+        List<String> urls = new ArrayList<>();
         String url = null;
-        ConsumerRecords<String, String> records = consumer.poll(1);
+        ConsumerRecords<String, String> records = consumer.poll(0);
+        logger.debug("after poll");
         for (ConsumerRecord<String, String> record : records) {
-            System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
-            url = record.value();
+            logger.debug("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
+            urls.add( record.value() );
         }
 
-        return url;
+        return urls;
     }
 
     @Override

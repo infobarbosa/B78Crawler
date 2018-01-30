@@ -1,5 +1,7 @@
 package com.infobarbosa.crawler;
 
+import java.util.List;
+
 public interface PageMessageBus {
 
     /**
@@ -10,7 +12,7 @@ public interface PageMessageBus {
     /**
      * dequeue the next page url
      * */
-    public String dequeueNextPageUrl();
+    public List<String> dequeueNextPageUrl();
 
     /**
      * libera os recursos utilizados

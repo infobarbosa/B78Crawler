@@ -1,5 +1,5 @@
 CREATE KEYSPACE crawler
-    WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'}
+    WITH replication = {'class': 'NetworkTopologyStrategy', 'MACBOOKPRO': 3, 'UBUNTU': 3}
     AND durable_writes = true;
 
 CREATE TABLE crawler.pages (

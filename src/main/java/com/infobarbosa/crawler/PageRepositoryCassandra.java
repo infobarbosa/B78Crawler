@@ -15,11 +15,10 @@ public class PageRepositoryCassandra implements PageRepository {
 
     /**
      * constructor
-     * TODO externalizar a configuracao de endpoints
      * */
     public PageRepositoryCassandra(){
         Cluster cluster = Cluster.builder()
-                .addContactPoint("localhost")
+                .addContactPoint( CrawlerConfig.CASSANDRA_CONTACT_POINT )
                 .build();
         session = cluster.connect();
         logger.info("sessao cassandra inicializada");

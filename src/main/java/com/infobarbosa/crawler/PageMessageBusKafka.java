@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 @Singleton
 public class PageMessageBusKafka implements PageMessageBus {
@@ -44,7 +41,7 @@ public class PageMessageBusKafka implements PageMessageBus {
             logger.error(he.getMessage());
         }
 
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, CrawlerConfig.KAFKA_BOOTSTRAP_SERVERS_CONFIG);
         config.put(ProducerConfig.ACKS_CONFIG, "all");
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
@@ -64,7 +61,7 @@ public class PageMessageBusKafka implements PageMessageBus {
             logger.error(he.getMessage());
         }
 
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, CrawlerConfig.KAFKA_BOOTSTRAP_SERVERS_CONFIG);
         config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         config.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG,  "1000");
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "crawler");
@@ -72,7 +69,7 @@ public class PageMessageBusKafka implements PageMessageBus {
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
 
         consumer = new KafkaConsumer<String, String>(config);
-        consumer.subscribe(Arrays.asList("pending_pages"));
+        consumer.subscribe(Collections.singletonList("pending_pages"));
     }
 
     /**

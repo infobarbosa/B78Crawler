@@ -11,7 +11,9 @@ public class PageRepositoryCassandra implements PageRepository {
 
     private static Logger logger = LoggerFactory.getLogger(PageRepositoryCassandra.class);
     private static Session session = null;
-    PreparedStatement preparedCheck = null;
+    private PreparedStatement preparedCheck = null;
+    private PreparedStatement preparedPageDetail = null;
+    PreparedStatement preparedPages = null;
 
     /**
      * constructor
@@ -26,6 +28,11 @@ public class PageRepositoryCassandra implements PageRepository {
         preparedCheck = session.prepare(
                 "select count(1) as qtt from crawler.page_detail where page = ?");
 
+        preparedPageDetail = session.prepare(
+                "insert into crawler.page_detail (page, page_detail) values (?, ?)");
+
+        preparedPages = session.prepare(
+                "insert into crawler.pages (parent_page, child_page) values (?, ?)");
     }
 
     /**
@@ -36,18 +43,11 @@ public class PageRepositoryCassandra implements PageRepository {
         logger.debug("inserindo url: " + page.getUrl());
 
         //insert CRAWLER.PAGE_DETAIL
-        PreparedStatement pDetail = session.prepare(
-                "insert into crawler.page_detail (page, page_detail) values (?, ?)");
-
-        session.execute( pDetail.bind(page.getUrl(), page.getPageDetail()) );
-
+        session.execute( preparedPageDetail.bind(page.getUrl(), page.getPageDetail()) );
 
         //insert CRAWLER.PAGES
-        PreparedStatement prepared = session.prepare(
-                "insert into crawler.pages (parent_page, child_page) values (?, ?)");
-
         page.getLinks().forEach((url)->{
-            session.execute( prepared.bind(page.getUrl(), url) );
+            session.execute( preparedPages.bind(page.getUrl(), url) );
         });
 
         logger.debug("pagina inserida");

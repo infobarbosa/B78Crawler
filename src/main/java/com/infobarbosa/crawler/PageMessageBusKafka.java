@@ -6,6 +6,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,8 @@ public class PageMessageBusKafka implements PageMessageBus {
 
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, CrawlerConfig.KAFKA_BOOTSTRAP_SERVERS_CONFIG);
         config.put(ProducerConfig.ACKS_CONFIG, "all");
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
         producer = new KafkaProducer<String, String>(config);
     }
@@ -69,7 +70,7 @@ public class PageMessageBusKafka implements PageMessageBus {
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
 
         consumer = new KafkaConsumer<String, String>(config);
-        consumer.subscribe(Collections.singletonList("pending_pages"));
+        consumer.subscribe(Collections.singletonList(CrawlerConfig.KAFKA_PENDING_PAGES_TOPIC));
     }
 
     /**
@@ -77,7 +78,7 @@ public class PageMessageBusKafka implements PageMessageBus {
     */
     @Override
     public void enqueuePageUrl(String url){
-        producer.send(new ProducerRecord<>("pending_pages", url, url));
+        producer.send(new ProducerRecord<>(CrawlerConfig.KAFKA_PENDING_PAGES_TOPIC, url, url));
         logger.info("URL enfileirada: " + url);
     }
 

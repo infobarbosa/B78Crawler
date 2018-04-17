@@ -9,10 +9,10 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
-      ZOOKEEPER_SERVERS: 172.18.0.11:2888:3888;172.18.0.12:2888:3888;172.18.0.13:2888:3888
+      ZOOKEEPER_SERVERS: 172.21.0.11:2888:3888;172.21.0.12:2888:3888;172.21.0.13:2888:3888
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.11
+      labkafka:
+        ipv4_address: 172.21.0.11
     extra_hosts:
       - "moby:127.0.0.1"
 
@@ -24,10 +24,10 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
-      ZOOKEEPER_SERVERS: 172.18.0.11:2888:3888;172.18.0.12:2888:3888;172.18.0.13:2888:3888
+      ZOOKEEPER_SERVERS: 172.21.0.11:2888:3888;172.21.0.12:2888:3888;172.21.0.13:2888:3888
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.12
+      labkafka:
+        ipv4_address: 172.21.0.12
     extra_hosts:
       - "moby:127.0.0.1"
 
@@ -39,32 +39,32 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
-      ZOOKEEPER_SERVERS: 172.18.0.11:2888:3888;172.18.0.12:2888:3888;172.18.0.13:2888:3888
+      ZOOKEEPER_SERVERS: 172.21.0.11:2888:3888;172.21.0.12:2888:3888;172.21.0.13:2888:3888
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.13
+      labkafka:
+        ipv4_address: 172.21.0.13
     extra_hosts:
       - "moby:127.0.0.1"
 
   kafka-1:
     image: confluentinc/cp-enterprise-kafka:latest
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.21
+      labkafka:
+        ipv4_address: 172.21.0.21
     depends_on:
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: '172.18.0.11:2181,172.18.0.12:2181,172.18.0.13:2181/kafka'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://172.18.0.21:9092'
+      KAFKA_ZOOKEEPER_CONNECT: '172.21.0.11:2181,172.21.0.12:2181,172.21.0.13:2181/kafka'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://172.21.0.21:9092'
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: 172.18.0.21:9092
-      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: '172.18.0.11:2181,172.18.0.12:2181,172.18.0.13:2181/kafka'
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: 172.21.0.21:9092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: '172.21.0.11:2181,172.21.0.12:2181,172.21.0.13:2181/kafka'
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 3
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
     extra_hosts:
@@ -73,22 +73,22 @@ services:
   kafka-2:
     image: confluentinc/cp-enterprise-kafka:latest
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.22
+      labkafka:
+        ipv4_address: 172.21.0.22
     depends_on:
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
     environment:
       KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: '172.18.0.11:2181,172.18.0.12:2181,172.18.0.13:2181/kafka'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://172.18.0.22:9092'
+      KAFKA_ZOOKEEPER_CONNECT: '172.21.0.11:2181,172.21.0.12:2181,172.21.0.13:2181/kafka'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://172.21.0.22:9092'
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: 172.18.0.21:9092
-      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: '172.18.0.11:2181,172.18.0.12:2181,172.18.0.13:2181/kafka'
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: 172.21.0.22:9092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: '172.21.0.11:2181,172.21.0.12:2181,172.21.0.13:2181/kafka'
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 3
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
     extra_hosts:
@@ -97,21 +97,21 @@ services:
   kafka-3:
     image: confluentinc/cp-enterprise-kafka:latest
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.23
+      labkafka:
+        ipv4_address: 172.21.0.23
     depends_on:
       - zookeeper-1
       - zookeeper-2
       - zookeeper-3
     environment:
       KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: '172.18.0.11:2181,172.18.0.12:2181,172.18.0.13:2181/kafka'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://172.18.0.23:9092'
+      KAFKA_ZOOKEEPER_CONNECT: '172.21.0.11:2181,172.21.0.12:2181,172.21.0.13:2181/kafka'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://172.21.0.23:9092'
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: 172.18.0.21:9092
-      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: '172.18.0.11:2181,172.18.0.12:2181,172.18.0.13:2181/kafka'
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: 172.21.0.23:9092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: '172.21.0.11:2181,172.21.0.12:2181,172.21.0.13:2181/kafka'
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
@@ -121,8 +121,8 @@ services:
   schema_registry-1:
     image: confluentinc/cp-schema-registry
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.31
+      labkafka:
+        ipv4_address: 172.21.0.31
     hostname: schema_registry
     depends_on:
       - zookeeper-1
@@ -135,13 +135,14 @@ services:
       - "8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema_registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: '172.18.0.11:2181,172.18.0.12:2181,172.18.0.13:2181/kafka'
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: '172.21.0.11:2181,172.21.0.12:2181,172.21.0.13:2181/kafka'
+      SCHEMA_REGISTRY_KAFKASTORE_TOPIC_REPLICATION_FACTOR: 3
 
   connect-1:
     image: confluentinc/cp-kafka-connect
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.41
+      labkafka:
+        ipv4_address: 172.21.0.41
     hostname: connect
     depends_on:
       - zookeeper-1
@@ -154,32 +155,32 @@ services:
     ports:
       - "8083:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: '172.18.0.21:9092'
-      CONNECT_REST_ADVERTISED_HOST_NAME: 172.18.0.41
+      CONNECT_BOOTSTRAP_SERVERS: '172.21.0.21:9092,172.21.0.22:9092,172.21.0.23:9092'
+      CONNECT_REST_ADVERTISED_HOST_NAME: 172.21.0.41
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: compose-connect-group
       CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
-      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 3
       CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
       CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 3
       CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
-      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 3
       CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://172.18.0.31:8081'
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://172.21.0.31:8081'
       CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://172.18.0.31:8081'
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://172.21.0.31:8081'
       CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      CONNECT_ZOOKEEPER_CONNECT: '172.18.0.11:2181'
+      CONNECT_ZOOKEEPER_CONNECT: '172.21.0.11:2181'
 
   control-center-1:
     image: confluentinc/cp-enterprise-control-center:4.0.0
     ports:
       - "9021:9021"
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.51
+      labkafka:
+        ipv4_address: 172.21.0.51
     depends_on:
       - zookeeper-1
       - zookeeper-2
@@ -190,29 +191,29 @@ services:
       - schema_registry-1
       - connect-1
     environment:
-      CONTROL_CENTER_ZOOKEEPER_CONNECT: 172.18.0.11:2181/control-center
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: 172.18.0.21:9092
-      CONTROL_CENTER_REPLICATION_FACTOR: 1
-      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
-      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: 172.21.0.11:2181/control-center
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 172.21.0.21:9092,172.21.0.22:9092,172.21.0.23:9092
+      CONTROL_CENTER_REPLICATION_FACTOR: 3
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 3
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 3
       CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 2
-      CONTROL_CENTER_CONNECT_CLUSTER: http://172.18.0.41:8083
+      CONTROL_CENTER_CONNECT_CLUSTER: http://172.21.0.41:8083
     extra_hosts:
       - "moby:127.0.0.1"
 
   cassandra-1:
     image: store/datastax/dse-server:5.1.5
     networks:
-      vpcbr:
-        ipv4_address: 172.18.0.61
+      labkafka:
+        ipv4_address: 172.21.0.61
     environment:
       DS_LICENSE: accept
     extra_hosts:
       - "moby:127.0.0.1"
 
 networks:
-    vpcbr:
+    labkafka:
         driver: bridge
         ipam:
           config:
-            - subnet: 172.18.0.0/24
+            - subnet: 172.21.0.0/24
